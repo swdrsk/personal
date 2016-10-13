@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pdb
 
+
 class Attractor:
     def __init__(self):
         self.dt = 0.01
@@ -11,17 +12,21 @@ class Attractor:
         self.y = 0.1
         self.z = 0.1
         self.output = []
+
     def initialize(self,x,y,z):
         self.x = x
         self.y = y
         self.z = z
+
     def run(self,T):
         for t in range(T):
             self._step()
             self.output.append([self.x,self.y,self.z])
         return self.output
+
     def _step(self):
         pass        
+
     def draw(self,display=True,plotfig=None):
         if not self.output:
             print("not run...do Lorents.run(T=t)")
@@ -38,6 +43,7 @@ class Attractor:
                 print("draw Error...")
                 print("USAGE: draw(display=False,plotfig=<object plt.figure().gca>)")
 
+
 class Lorenz(Attractor):
     def __init__(self,p,r,b):
         # p=10,r=28,b=8/3 in Lorenz(1963)        
@@ -45,11 +51,13 @@ class Lorenz(Attractor):
         self.p = float(p)
         self.r = float(r)
         self.b = float(b)
+
     def _step(self):
         x,y,z = self.x,self.y,self.z
         self.x += self.dt*(-self.p*(x-y))
         self.y += self.dt*(-x*z + self.r*x - y)
         self.z += self.dt*(x*y - self.b*z)
+
 
 class Rossler(Attractor):
     def __init__(self,a,b,c):
@@ -58,14 +66,15 @@ class Rossler(Attractor):
         self.a = a
         self.b = b
         self.c = c
+
     def _step(self):
         x,y,z = self.x,self.y,self.z
         self.x += self.dt*(-y-z)
         self.y += self.dt*(x+self.a*y)
         self.z += self.dt*(self.b+x*z-self.c*z)
-        
-if __name__=="__main__":
 
+
+if __name__=="__main__":
     fig = plt.figure(figsize=plt.figaspect(2.))
     ax = fig.add_subplot(2,1,1,projection="3d")
     la = Lorenz(10,28,8.0/3)
