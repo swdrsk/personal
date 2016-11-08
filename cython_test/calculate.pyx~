@@ -1,0 +1,8 @@
+import math
+
+def entropy(a):
+    suma = sum(a)
+    pa = [float(i)/suma for i in a]
+    
+    return sum([pi*math.log(pi) for pi in pa])
+

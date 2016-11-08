@@ -20,12 +20,12 @@ class Attractor:
 
     def run(self,T):
         for t in range(T):
-            self._step()
+            self.step()
             self.output.append([self.x,self.y,self.z])
         return self.output
 
-    def _step(self):
-        pass        
+    def step(self):
+        return self.x,self.y,self.z
 
     def draw(self,display=True,plotfig=None):
         if not self.output:
@@ -52,11 +52,12 @@ class Lorenz(Attractor):
         self.r = float(r)
         self.b = float(b)
 
-    def _step(self):
+    def step(self):
         x,y,z = self.x,self.y,self.z
         self.x += self.dt*(-self.p*(x-y))
         self.y += self.dt*(-x*z + self.r*x - y)
         self.z += self.dt*(x*y - self.b*z)
+        return self.x, self.y, self.z
 
 
 class Rossler(Attractor):
@@ -67,11 +68,12 @@ class Rossler(Attractor):
         self.b = b
         self.c = c
 
-    def _step(self):
+    def step(self):
         x,y,z = self.x,self.y,self.z
         self.x += self.dt*(-y-z)
         self.y += self.dt*(x+self.a*y)
         self.z += self.dt*(self.b+x*z-self.c*z)
+        return self.x, self.y, self.z
 
 
 if __name__=="__main__":
