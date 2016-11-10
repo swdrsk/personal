@@ -12,7 +12,7 @@ class Layer(object):
         self.weight = self.init_weight(post, pre)
 
     def init_weight(self, post, pre):
-        return np.random.random([post, pre]) - 0.5
+        return np.random.random([post, pre])*2 - 1
 
     def activation(self, inputs):
         sigmoid = 1/(1+np.exp(-inputs))
@@ -21,7 +21,7 @@ class Layer(object):
         return sigmoid
 
     def inv_activation(self, inputs):
-        sigmoid = (1/(1+np.exp(-inputs)))*(1-1/(1+np.exp(-inputs)))
+        sigmoid = inputs*(1-inputs)
         return sigmoid
 
     def out(self,inputs):
@@ -31,9 +31,13 @@ class Layer(object):
 
     def learn(self,err,learning_rate):
         for i,invpre in enumerate(self.inv_activation(self.pre)):
-            self.weight[:,i] -= learning_rate*err*self.post*invpre
-        return np.dot(np.linalg.pinv(self.weight), err)*self.inv_activation(self.pre)
+            self.weight[:,i] += learning_rate*err*self.post*invpre
+        # return np.dot(np.linalg.pinv(self.weight), err)*self.inv_activation(self.pre)
+        return np.dot(self.weight.T, err)
 
+    def plearn(self,err,learning_rate):
+        self.weight = self.init_weight(len(self.post),len(self.pre))
+        return err
 
 class NeuralNet(object):
     def __init__(self,*nums):
@@ -48,22 +52,26 @@ class NeuralNet(object):
             print("mismatch output dim vs. units num")
         if inputsignal.shape[0] != outputsignal.shape[0]:
             print("mismatch input length and output length")
+        err = 0
         for signal,teacher in zip(inputsignal,outputsignal):
             output = self.feedforward(signal)
-            self.learn(teacher-output, learning_rate)
+            self.learn(output-teacher, learning_rate)
+            err = output-teacher
+        return err
                         
     def learn(self,err,learning_rate=0.01):
         for layer in self.layer[::-1]:
-            err = layer.learn(err,learning_rate)
+            err = layer.learn(err, learning_rate)
 
     def feedforward(self, inputsignal):
         isignal = inputsignal
+        osignal = 0
         for layer in self.layer:
             osignal = layer.out(isignal)
             isignal = osignal
         return osignal
 
-    def predict(self,inputsignals):
+    def predict(self, inputsignals):
         output = np.zeros([len(inputsignals),len(self.layer[-1].post)])
         for i,inputsignal in enumerate(inputsignals):
             output[i,:] = self.feedforward(inputsignal)
@@ -85,7 +93,8 @@ def run():
     test_signal = np.random.random([50,2]) * 20 - 10
     NN = NeuralNet(2,3,1)
     for i in np.arange(1,10,0.1):
-        NN.fit(input_signal,output_signal,learning_rate=0.01/i)
+        err = NN.fit(input_signal, output_signal, learning_rate=0.1/i)
+        print err
     predict = NN.predict(test_signal)
     plt.figure()
     for data in zip(test_signal, predict):
