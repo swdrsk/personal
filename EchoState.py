@@ -5,28 +5,24 @@ import pdb
 
 
 class Layer(object):
-    def __init__(self,pre,post):
-        self.pre = np.zeros(pre)
-        self.post = np.zeros(post)
-        self.thre = np.random.rand(pre) - 0.5
-        self.weight = self.init_weight(post, pre)
+    def __init__(self,n):
+        self.pre = np.zeros(n)
+        self.post = np.zeros(n)
+        self.thre = np.zeros(n)
+        self.weight = self.init_weight(n)
 
-    def init_weight(self, post, pre):
-        return np.random.random([post, pre])*2 - 1
+    def init_weight(self, n):
+        return np.random.random([n, n])*2 - 1
 
     def activation(self,inputs):
         sigmoid = 1/(1+np.exp(-inputs))
         tanh = np.tanh(-inputs)
         relu = np.array(map(lambda x:(0 if x<0 else x), inputs))
-        return sigmoid
-
-    def inv_activation(self, inputs):
-        sigmoid = inputs*(1-inputs)
-        return sigmoid
+        return tanh
 
     def out(self,inputs):
         # output = self.activation(np.dot(self.weight,inputs+self.thre))
-        output = np.dot(self.weight, self.activation(inputs))
+        output = np.dot(self.weight, self.activation(inputs + self.thre))
         self.pre = inputs
         self.post = output
         return output
