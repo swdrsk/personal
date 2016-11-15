@@ -25,20 +25,11 @@ class Layer(object):
         return sigmoid
 
     def out(self,inputs):
-        # output = np.dot(self.weight,self.activation(inputs))+self.thre
-        output = self.activation(np.dot(self.weight,inputs+self.thre))
+        # output = self.activation(np.dot(self.weight,inputs+self.thre))
+        output = np.dot(self.weight, self.activation(inputs))
         self.pre = inputs
         self.post = output
         return output
-
-    def learn(self,err,learning_rate):
-        delta = err*self.inv_activation(self.pre)
-        self.weight -= learning_rate*(self.pre.T.dot(delta))
-        return delta.dot(self.weight.T)
-
-    def plearn(self,err,learning_rate):
-        self.weight += learning_rate*self.init_weight(len(self.post),len(self.pre))
-        return err
 
 
 class NeuralNet(object):
